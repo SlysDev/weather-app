@@ -4,6 +4,7 @@ const weatherUrl = "https://api.openweathermap.org/data/2.5/weather?q=";
 const weatherApiKey = "282d3fa1ac875d39842538840437b78b";
 const weatherSearchBar = document.querySelector("#search-bar");
 const searchBtn = document.querySelector("#search-btn");
+const tempFormatBtn = document.querySelector("#temperature-format-btn");
 let temperatureSystem = "C";
 
 let searchWeather = async function (query) {
@@ -52,8 +53,8 @@ let processWeatherData = function (weatherData) {
         weatherDescription = weatherData.weather[0].description;
         let weatherInformation = {
             temperature: currentTemperature.toFixed(1),
-            minTemperature: minTemperature,
-            maxTemperature: maxTemperature,
+            minTemperature: minTemperature.toFixed(1),
+            maxTemperature: maxTemperature.toFixed(1),
             feelsLike: feelsLikeTemperature.toFixed(1),
             pressure: pressure.toFixed(1),
             windSpeed: windSpeed,
@@ -79,8 +80,10 @@ let renderWeatherData = function (weather) {
     const weatherDescription = document.querySelector(".weather-description");
     const locationTitleText = document.querySelector(".location-title");
     const countryText = document.querySelector("#country-text");
+    const tempRangeText = document.querySelector(".temperature-range-text");
     temperatureText.textContent = weather.temperature + "°";
     feelsLikeText.textContent = "Feels Like " + weather.feelsLike + "°";
+    tempRangeText.textContent = `min: ${weather.minTemperature} max: ${weather.maxTemperature}`;
     pressureText.textContent = `Pressure: ${weather.pressure} psi`;
     windSpeedText.textContent = `Wind Speed: ${weather.windSpeed} m/s`;
     weatherTitle.textContent = weather.prognosis;
@@ -109,11 +112,33 @@ let renderWeatherImage = function (imageUrl) {
 };
 
 searchBtn.addEventListener("click", async () => {
+    refreshWeatherData(true);
+});
+
+let refreshWeatherData = async function (refreshImage = false) {
     let weatherData = await searchWeather(weatherSearchBar.value);
     let weatherInformation = processWeatherData(weatherData);
     renderWeatherData(weatherInformation);
-    let imageUrl = await getweatherImage(
-        weatherInformation.prognosis.toString()
-    );
-    renderWeatherImage(imageUrl);
+    if (refreshImage) {
+        let imageUrl = await getweatherImage(
+            weatherInformation.prognosis.toString()
+        );
+        renderWeatherImage(imageUrl);
+    }
+};
+
+tempFormatBtn.addEventListener("click", async () => {
+    if (temperatureSystem == "C") {
+        temperatureSystem = "F";
+        tempFormatBtn.textContent = "Farenheit";
+        await refreshWeatherData();
+    } else if (temperatureSystem == "F") {
+        temperatureSystem = "C";
+        tempFormatBtn.textContent = "Celsius";
+        await refreshWeatherData();
+    } else {
+        temperatureSystem = "C";
+        tempFormatBtn.textContent = "Celsius";
+        await refreshWeatherData();
+    }
 });
