@@ -26,7 +26,9 @@ let processWeatherData = function (weatherData) {
     let minTemperature;
     let maxTemperature;
     let pressure;
+    let windSpeed;
     let locationName;
+    let locationCountry;
     let weatherTitle;
     let weatherDescription;
     try {
@@ -42,15 +44,20 @@ let processWeatherData = function (weatherData) {
             minTemperature = (9 / 5) * (weatherData.main.temp_min - 273) + 32;
             maxTemperature = (9 / 5) * (weatherData.main.temp_max - 273) + 32;
         }
-        pressure = weatherData.main.pressure;
+        pressure = weatherData.main.pressure * 0.0145037738;
+        windSpeed = weatherData.wind.speed;
         locationName = weatherData.name;
+        locationCountry = weatherData.sys.country;
         weatherTitle = weatherData.weather[0].main;
         weatherDescription = weatherData.weather[0].description;
         let weatherInformation = {
             temperature: currentTemperature.toFixed(1),
+            minTemperature: minTemperature,
+            maxTemperature: maxTemperature,
             feelsLike: feelsLikeTemperature.toFixed(1),
-            pressure: pressure,
-            location: locationName,
+            pressure: pressure.toFixed(1),
+            windSpeed: windSpeed,
+            location: { name: locationName, country: locationCountry },
             prognosis: weatherTitle,
             description: weatherDescription,
         };
@@ -66,14 +73,20 @@ let processWeatherData = function (weatherData) {
 let renderWeatherData = function (weather) {
     const temperatureText = document.querySelector(".temperature-text");
     const feelsLikeText = document.querySelector(".feels-like-text");
+    const pressureText = document.querySelector(".pressure-text");
+    const windSpeedText = document.querySelector(".wind-speed-text");
     const weatherTitle = document.querySelector(".weather-title");
     const weatherDescription = document.querySelector(".weather-description");
-    const countryTitleText = document.querySelector(".country-title");
+    const locationTitleText = document.querySelector(".location-title");
+    const countryText = document.querySelector("#country-text");
     temperatureText.textContent = weather.temperature + "°";
     feelsLikeText.textContent = "Feels Like " + weather.feelsLike + "°";
+    pressureText.textContent = `Pressure: ${weather.pressure} psi`;
+    windSpeedText.textContent = `Wind Speed: ${weather.windSpeed} m/s`;
     weatherTitle.textContent = weather.prognosis;
     weatherDescription.textContent = weather.description;
-    countryTitleText.textContent = weather.location;
+    locationTitleText.textContent = weather.location.name;
+    countryText.textContent = weather.location.country;
 };
 
 let getweatherImage = async function (weatherQuery) {

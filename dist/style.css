@@ -50,10 +50,22 @@ button:hover {
     justify-content: space-between;
 }
 
-.weather-data {
+.weather-data,
+.other-information {
     display: flex;
     flex-direction: column;
     gap: 4rem;
+}
+
+.location-information {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.location-information > * {
+    text-align: center;
+    vertical-align: center;
 }
 
 .search-container {
@@ -64,7 +76,7 @@ button:hover {
 
 .search-container > input {
     padding: 1rem 2rem;
-    width: 20rem;
+    width: 30vw;
     background-color: transparent;
     border: 4px solid black;
     border-radius: 15px;
@@ -72,11 +84,22 @@ button:hover {
 }
 
 .search-container > input:hover {
-    width: 21.75rem;
+    width: 35vw;
     transition: 0.5s ease;
 }
 
 .search-container > input:focus {
-    width: 25rem;
+    width: 45vw;
     transition: 0.5s ease;
+}
+
+@media (max-width: 600px) {
+    * {
+        font-size: 14px;
+    }
+}
+@media (max-width: 400px) {
+    * {
+        font-size: 12px;
+    }
 }
