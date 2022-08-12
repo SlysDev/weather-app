@@ -13,7 +13,6 @@ let searchWeather = async function (query) {
             { mode: "cors" }
         );
         let data = await response.json();
-        console.log(data);
         return data;
     } catch (error) {
         console.log(error);
@@ -21,8 +20,11 @@ let searchWeather = async function (query) {
 };
 
 let processWeatherData = function (weatherData) {
+    console.log(weatherData);
     let currentTemperature;
     let feelsLikeTemperature;
+    let minTemperature;
+    let maxTemperature;
     let pressure;
     let locationName;
     let weatherTitle;
@@ -31,15 +33,19 @@ let processWeatherData = function (weatherData) {
         if (temperatureSystem == "C") {
             currentTemperature = weatherData.main.temp - 273.15;
             feelsLikeTemperature = weatherData.main.feels_like - 273.15;
+            minTemperature = weatherData.main.temp_min - 273.15;
+            maxTemperature = weatherData.main.temp_max - 273.15;
         } else {
             currentTemperature = (9 / 5) * (weatherData.main.temp - 273) + 32;
             feelsLikeTemperature =
                 (9 / 5) * (weatherData.main.feels_like - 273) + 32;
+            minTemperature = (9 / 5) * (weatherData.main.temp_min - 273) + 32;
+            maxTemperature = (9 / 5) * (weatherData.main.temp_max - 273) + 32;
         }
         pressure = weatherData.main.pressure;
         locationName = weatherData.name;
-        weatherTitle = weatherData.weather.main;
-        weatherDescription = weatherData.weather.description;
+        weatherTitle = weatherData.weather[0].main;
+        weatherDescription = weatherData.weather[0].description;
         let weatherInformation = {
             temperature: currentTemperature.toFixed(1),
             feelsLike: feelsLikeTemperature.toFixed(1),
@@ -51,6 +57,9 @@ let processWeatherData = function (weatherData) {
         return weatherInformation;
     } catch (error) {
         console.log(error);
+        const temperatureText = document.querySelector(".temperature-text");
+        temperatureText.textContent =
+            "Error: Cannot find city entered. Try again!";
     }
 };
 
@@ -67,8 +76,31 @@ let renderWeatherData = function (weather) {
     countryTitleText.textContent = weather.location;
 };
 
+let getweatherImage = async function (weatherQuery) {
+    let response = await fetch(
+        giphyUrl + weatherQuery + `&apikey=${giphyApiKey}`,
+        {
+            mode: "cors",
+        }
+    );
+    let imageData = await response.json();
+    let imageUrl = await imageData.data[Math.ceil(Math.random() * 50)].images
+        .original.url;
+    return imageUrl;
+};
+
+let renderWeatherImage = function (imageUrl) {
+    document.body.style.backgroundImage = `url(${imageUrl})`;
+    document.body.style.backgroundRepeat = "no-repeat";
+    document.body.style.backgroundSize = "cover";
+};
+
 searchBtn.addEventListener("click", async () => {
     let weatherData = await searchWeather(weatherSearchBar.value);
     let weatherInformation = processWeatherData(weatherData);
     renderWeatherData(weatherInformation);
+    let imageUrl = await getweatherImage(
+        weatherInformation.prognosis.toString()
+    );
+    renderWeatherImage(imageUrl);
 });
